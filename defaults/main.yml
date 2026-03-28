@@ -1,0 +1,33 @@
+---
+# common defaults
+
+
+common_packages:
+  - vim-nox
+  - htop
+  - di
+  - atool
+
+common_packages_env: []
+common_packages_host: []
+
+
+common_hosts_entries: []
+
+
+common_locale: en_US.UTF-8
+common_language: en_US:en
+common_timezone: Etc/UTC
+
+
+common_ssh_password_auth: 'no'
+common_ssh_root_access: 'no'
+
+
+common_resolv_conf_edit: false
+
+common_resolv_conf_ns:
+  - 8.8.8.8
+  - 8.8.4.4
+
+common_resolv_conf_search:

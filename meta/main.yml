@@ -1,0 +1,10 @@
+---
+# common meta
+
+
+dependencies:
+  - role: apt
+    apt_packages:
+      - '{{ common_packages }}'
+      - '{{ common_packages_env }}'
+      - '{{ common_packages_host }}'

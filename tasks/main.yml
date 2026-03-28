@@ -1,0 +1,98 @@
+---
+# common tasks
+
+
+- name: Hostname
+  become: true
+  tags: ['common', 'hostname']
+  block:
+    - name: Set hostname
+      ansible.builtin.hostname:
+        name: '{{ inventory_hostname_short }}'
+
+    - name: Save hostname in /etc/hostname
+      ansible.builtin.copy:
+        content: '{{ inventory_hostname_short }}'
+        dest: /etc/hostname
+        owner: root
+        group: root
+        mode: '0644'
+        force: true
+
+    - name: Save hostname and domain in /etc/hosts
+      ansible.builtin.template:
+        src: etc/hosts.j2
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: '0644'
+
+- name: Create /etc/environment
+  ansible.builtin.copy:
+    src: etc/environment
+    dest: /etc/environment
+    owner: root
+    group: root
+    mode: '0644'
+    force: true
+  become: true
+  tags: ['common', 'environment']
+
+
+- name: Locale
+  become: true
+  tags: ['common', 'locale']
+  block:
+    - name: Generate locale
+      community.general.locale_gen:
+        name: '{{ common_locale }}'
+        state: present
+
+    - name: Set default locale
+      ansible.builtin.template:
+        src: etc/default/locale.j2
+        dest: /etc/default/locale
+        owner: root
+        group: root
+        mode: '0644'
+        force: true
+
+
+- name: Set timezone
+  community.general.timezone:
+    name: '{{ common_timezone }}'
+  become: true
+  tags: ['common', 'time']
+
+
+- name: Security
+  become: true
+  tags: ['common', 'security']
+  block:
+    - name: Set root ssh access
+      ansible.builtin.replace:
+        dest: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin(.*)$'
+        replace: 'PermitRootLogin {{ common_ssh_root_access }}'
+        validate: sshd -T -f %s
+      notify: Restart SSH
+
+    - name: Set password autentication
+      ansible.builtin.replace:
+        dest: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication(.*)$'
+        replace: 'PasswordAuthentication {{ common_ssh_password_auth }}'
+        validate: sshd -T -f %s
+      notify: Restart SSH
+
+
+- name: Edit /etc/resolv.conf
+  ansible.builtin.template:
+    src: etc/resolv.conf.j2
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  when: common_resolv_conf_edit
+  tags: ['common', 'resolv']

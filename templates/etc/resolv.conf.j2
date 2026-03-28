@@ -1,0 +1,6 @@
+{% for ns in common_resolv_conf_ns %}
+nameserver {{ ns }}
+{% endfor %}
+{% if common_resolv_conf_search | length %}
+search {{ common_resolv_conf_search }}
+{% endif %}
